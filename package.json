@@ -1,6 +1,6 @@
 {
   "name": "aironin-browse-mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "aiRonin Browse MCP server with headed Chrome support",
   "main": "dist/server.js",
   "bin": {
