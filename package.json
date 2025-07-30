@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "aiRonin Browse MCP server with headed Chrome support",
   "main": "dist/server.js",
+  "bin": {
+    "aironin-browse-mcp": "dist/server.js"
+  },
   "type": "module",
   "packageManager": "pnpm@10.8.1",
   "engines": {
