@@ -2,12 +2,23 @@
 
 ## Quick Installation
 
-### Option 1: npx (Recommended)
+### Option 1: pnpm dlx (Recommended)
 
 ```bash
-# Install the MCP server
-npm install -g aironin-browse-mcp
+# Add to your MCP configuration
+echo '{
+  "mcpServers": {
+    "aironin-browse": {
+      "command": "pnpm",
+      "args": ["dlx", "aironin-browse-mcp"]
+    }
+  }
+}' > .cursor/mcp.json
+```
 
+### Option 2: npx (Alternative)
+
+```bash
 # Add to your MCP configuration
 echo '{
   "mcpServers": {
@@ -19,25 +30,10 @@ echo '{
 }' > .cursor/mcp.json
 ```
 
-### Option 2: Direct Git (Alternative)
-
-```bash
-# Install globally
-npm install -g aironin-browse-mcp
-
-# Add to your MCP configuration
-echo '{
-  "mcpServers": {
-    "aironin-browse": {
-      "command": "aironin-browse-mcp"
-    }
-  }
-}' > .cursor/mcp.json
-```
-
 ## Prerequisites
 
 - **Node.js**: 20.0.0 or higher
+- **pnpm**: 10.0.0 or higher (recommended) or npm
 - **Chrome/Chromium**: Will be downloaded automatically
 - **Cursor/Continue**: MCP-compatible AI agent
 
@@ -51,12 +47,8 @@ Create or update `.cursor/mcp.json`:
 {
   "mcpServers": {
     "aironin-browse": {
-      "command": "uvx",
-      "args": [
-        "--from",
-        "git+https://github.com/iRoninIT/aironin-browse-mcp",
-        "aironin-browse-mcp"
-      ]
+      "command": "pnpm",
+      "args": ["dlx", "aironin-browse-mcp"]
     }
   }
 }
@@ -70,12 +62,8 @@ Create or update `~/.continue/config.json`:
 {
   "mcpServers": {
     "aironin-browse": {
-      "command": "uvx",
-      "args": [
-        "--from",
-        "git+https://github.com/iRoninIT/aironin-browse-mcp",
-        "aironin-browse-mcp"
-      ]
+      "command": "pnpm",
+      "args": ["dlx", "aironin-browse-mcp"]
     }
   }
 }
@@ -139,11 +127,11 @@ await save_screenshot({ filename: "result", quality: 85 });
 
 ### Installation Issues
 
-1. **uvx not found**:
+1. **pnpm not found**:
 
    ```bash
-   # Install uvx
-   curl -LsSf https://astral.sh/uv/install.sh | sh
+   # Install pnpm
+   npm install -g pnpm
    ```
 
 2. **Permission denied**:
@@ -157,7 +145,7 @@ await save_screenshot({ filename: "result", quality: 85 });
 3. **MCP server not starting**:
    ```bash
    # Test direct execution
-   uvx --from git+https://github.com/iRoninIT/aironin-browse-mcp aironin-browse-mcp
+   pnpm dlx aironin-browse-mcp
    ```
 
 ### Browser Issues
@@ -177,7 +165,7 @@ await save_screenshot({ filename: "result", quality: 85 });
 1. **"Command not found"**:
 
    - Restart Cursor after configuration changes
-   - Verify uvx is installed and in PATH
+   - Verify pnpm is installed and in PATH
 
 2. **"MCP server failed to start"**:
 
@@ -199,8 +187,8 @@ await save_screenshot({ filename: "result", quality: 85 });
 To update to the latest version:
 
 ```bash
-# For uvx installation
-uvx --from git+https://github.com/iRoninIT/aironin-browse-mcp aironin-browse-mcp
+# For pnpm dlx installation (automatic)
+# Just restart your MCP client - it will use the latest version
 
 # For npm installation
 npm update -g aironin-browse-mcp

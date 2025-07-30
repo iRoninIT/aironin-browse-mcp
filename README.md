@@ -35,7 +35,31 @@ pnpm build
 
 ### Configuration
 
-Add to your MCP client configuration (e.g., `.cursor/mcp.json`):
+#### Production Configuration (Published Package)
+
+For production use with the published npm package:
+
+```json
+{
+  "mcpServers": {
+    "aironin-browse": {
+      "command": "pnpm",
+      "args": ["dlx", "aironin-browse-mcp"],
+      "env": {
+        "NODE_ENV": "production",
+        "REMOTE_BROWSER_ENABLED": "true",
+        "SCREENSHOT_QUALITY": "75",
+        "BROWSER_VIEWPORT_SIZE": "900x600",
+        "BROWSER_NAVIGATION_TIMEOUT": "15000"
+      }
+    }
+  }
+}
+```
+
+#### Development Configuration (Local Build)
+
+For development with local changes:
 
 ```json
 {
@@ -44,12 +68,108 @@ Add to your MCP client configuration (e.g., `.cursor/mcp.json`):
       "command": "node",
       "args": ["aironin-browse-mcp/dist/server.js"],
       "env": {
-        "NODE_ENV": "development"
+        "NODE_ENV": "development",
+        "REMOTE_BROWSER_ENABLED": "true",
+        "SCREENSHOT_QUALITY": "75",
+        "BROWSER_VIEWPORT_SIZE": "900x600",
+        "BROWSER_NAVIGATION_TIMEOUT": "15000"
       }
     }
   }
 }
 ```
+
+#### Alternative Development Configuration (with pnpm)
+
+If you prefer using pnpm for development:
+
+```json
+{
+  "mcpServers": {
+    "aironin-browse": {
+      "command": "pnpm",
+      "args": ["run", "start"],
+      "cwd": "aironin-browse-mcp",
+      "env": {
+        "NODE_ENV": "development",
+        "REMOTE_BROWSER_ENABLED": "true",
+        "SCREENSHOT_QUALITY": "75",
+        "BROWSER_VIEWPORT_SIZE": "900x600",
+        "BROWSER_NAVIGATION_TIMEOUT": "15000"
+      }
+    }
+  }
+}
+```
+
+**Note**: Use the development configuration when working on local changes or testing new features. The production configuration uses the published package from npm.
+
+#### Configuration Parameters
+
+All parameters can be set via the `env` section in your MCP configuration:
+
+| Parameter                    | Default        | Description                                  |
+| ---------------------------- | -------------- | -------------------------------------------- |
+| `REMOTE_BROWSER_ENABLED`     | `"true"`       | Enable/disable remote browser detection      |
+| `REMOTE_BROWSER_HOST`        | `""`           | Custom remote browser host URL (optional)    |
+| `SCREENSHOT_QUALITY`         | `"75"`         | Default screenshot quality (1-100)           |
+| `BROWSER_VIEWPORT_SIZE`      | `"900x600"`    | Default browser viewport size                |
+| `BROWSER_NAVIGATION_TIMEOUT` | `"15000"`      | Navigation timeout in milliseconds           |
+| `NODE_ENV`                   | `"production"` | Node.js environment (development/production) |
+
+**Example with all parameters**:
+
+```json
+{
+  "mcpServers": {
+    "aironin-browse": {
+      "command": "node",
+      "args": ["aironin-browse-mcp/dist/server.js"],
+      "env": {
+        "NODE_ENV": "development",
+        "REMOTE_BROWSER_ENABLED": "true",
+        "REMOTE_BROWSER_HOST": "http://localhost:9222",
+        "SCREENSHOT_QUALITY": "90",
+        "BROWSER_VIEWPORT_SIZE": "1200x800",
+        "BROWSER_NAVIGATION_TIMEOUT": "20000"
+      }
+    }
+  }
+}
+```
+
+#### Configuration File Locations
+
+**Cursor**:
+
+- `.cursor/mcp.json`
+
+**Continue**:
+
+- `~/.continue/config.json`
+
+**Other MCP Clients**:
+
+- Check your MCP client documentation for the correct configuration file location
+
+#### Troubleshooting Configuration
+
+**Common Issues**:
+
+1. **MCP Server not starting**:
+
+   - Ensure Node.js 20.0.0+ is installed
+   - Verify the path to `dist/server.js` exists (for development)
+   - Check that `pnpm` is available in PATH (for production)
+
+2. **Development vs Production**:
+
+   - Development: Uses local build at `aironin-browse-mcp/dist/server.js`
+   - Production: Downloads from npm registry
+
+3. **Restart Required**:
+   - After changing configuration, restart your MCP client (Cursor, Continue, etc.)
+   - New tools may require a restart to become available
 
 ## 📖 Available Tools
 
@@ -180,6 +300,7 @@ Take a screenshot for AI agent analysis.
 **Parameters:**
 
 - `quality` (optional): Screenshot quality (1-100, default: 75)
+- `fullPage` (optional): Capture full page (default: false)
 
 **Example:**
 
@@ -187,12 +308,13 @@ Take a screenshot for AI agent analysis.
 {
   "name": "take_screenshot",
   "arguments": {
-    "quality": 85
+    "quality": 85,
+    "fullPage": true
   }
 }
 ```
 
-**Use Case**: AI agents can use this to "see" what's displayed and make informed decisions about next actions.
+**Use Case**: AI agents can use this to "see" what's displayed and make informed decisions about next actions. Full page capture is useful for long pages or when you need to see content below the viewport.
 
 #### `save_screenshot`
 
@@ -202,6 +324,7 @@ Take and save a screenshot to disk.
 
 - `quality` (optional): Screenshot quality (1-100, default: 75)
 - `filename` (optional): Custom filename (without extension)
+- `fullPage` (optional): Capture full page (default: false)
 
 **Example:**
 
@@ -210,12 +333,27 @@ Take and save a screenshot to disk.
   "name": "save_screenshot",
   "arguments": {
     "quality": 90,
-    "filename": "login-page"
+    "filename": "login-page",
+    "fullPage": true
   }
 }
 ```
 
 **Output**: Screenshot saved as `login-page-2024-01-15T10-30-45-123Z.webp`
+
+#### Full Page Capture
+
+Both screenshot tools now support full page capture via the `fullPage` parameter:
+
+- **`fullPage: false`** (default): Captures only the visible viewport
+- **`fullPage: true`**: Captures the entire page, including content below the fold
+
+This is particularly useful for:
+
+- Long web pages with content below the viewport
+- Documentation pages that extend beyond the screen
+- Social media feeds or news articles
+- Any page where you need to see the complete content
 
 #### `analyze_page`
 

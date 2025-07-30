@@ -13,13 +13,30 @@ const server = new McpServer({
 // Browser session instance
 let browserSession: BrowserSession | null = null
 
+// Configuration helper function
+function getConfigValue(key: string, defaultValue: string): string {
+	return process.env[key] || defaultValue
+}
+
 // Helper function to ensure browser is launched with remote detection
 async function ensureBrowserLaunched(forceRemote: boolean = false): Promise<BrowserSession> {
 	if (!browserSession) {
 		browserSession = new BrowserSession()
 		
+		// Set default configuration values if not provided
+		if (!process.env.SCREENSHOT_QUALITY) {
+			process.env.SCREENSHOT_QUALITY = getConfigValue("SCREENSHOT_QUALITY", "75")
+		}
+		if (!process.env.BROWSER_VIEWPORT_SIZE) {
+			process.env.BROWSER_VIEWPORT_SIZE = getConfigValue("BROWSER_VIEWPORT_SIZE", "900x600")
+		}
+		if (!process.env.BROWSER_NAVIGATION_TIMEOUT) {
+			process.env.BROWSER_NAVIGATION_TIMEOUT = getConfigValue("BROWSER_NAVIGATION_TIMEOUT", "15000")
+		}
+		
 		// Try remote browser detection first (unless explicitly disabled)
-		if (forceRemote || process.env.REMOTE_BROWSER_ENABLED !== "false") {
+		const remoteBrowserEnabled = getConfigValue("REMOTE_BROWSER_ENABLED", "true")
+		if (forceRemote || remoteBrowserEnabled !== "false") {
 			console.error("🔍 Attempting remote browser detection...")
 			const remoteHostUrl = await discoverChromeHostUrl(9222)
 			
@@ -31,6 +48,9 @@ async function ensureBrowserLaunched(forceRemote: boolean = false): Promise<Brow
 				console.error("❌ No remote browser found, using local browser")
 				process.env.REMOTE_BROWSER_ENABLED = "false"
 			}
+		} else {
+			console.error("🔧 Remote browser detection disabled by configuration")
+			process.env.REMOTE_BROWSER_ENABLED = "false"
 		}
 		
 		await browserSession.launchBrowser()
@@ -202,10 +222,11 @@ server.registerTool(
 		title: "Take Screenshot",
 		description: "Take a screenshot for AI agent analysis of the current page",
 		inputSchema: {
-			quality: z.number().optional().describe("Screenshot quality (1-100)")
+			quality: z.number().optional().describe("Screenshot quality (1-100)"),
+			fullPage: z.boolean().optional().describe("Capture full page (default: false)")
 		}
 	},
-	async ({ quality }) => {
+	async ({ quality, fullPage = false }) => {
 		const browser = await ensureBrowserLaunched()
 		
 		// Set screenshot quality if provided
@@ -213,11 +234,14 @@ server.registerTool(
 			process.env.SCREENSHOT_QUALITY = quality.toString()
 		}
 		
-		// Take screenshot using the browser session's doAction method
-		const result = await browser.doAction(async (page) => {
+		// Take screenshot using the browser session's doActionWithOptions method
+		const result = await browser.doActionWithOptions(async (page) => {
 			// Just wait a moment to ensure page is stable, screenshot is taken automatically
 			await new Promise(resolve => setTimeout(resolve, 100))
-		})
+		}, { fullPage })
+		
+		const defaultQuality = parseInt(getConfigValue("SCREENSHOT_QUALITY", "75"))
+		const actualQuality = quality || defaultQuality
 		
 		return {
 			content: [
@@ -226,7 +250,51 @@ server.registerTool(
 					text: `📸 Screenshot captured for analysis!\n\n` +
 						`Current URL: ${result.currentUrl}\n` +
 						`Image size: ${Math.round((result.screenshot?.length || 0) / 1024)}KB\n` +
-						`Quality: ${quality || 75}%\n` +
+						`Quality: ${actualQuality}%\n` +
+						`Full page capture: ${fullPage ? "Yes" : "No"}\n` +
+						`Screenshot data available for AI analysis`
+				}
+			]
+		}
+	}
+)
+
+server.registerTool(
+	"capture_page",
+	{
+		title: "Capture Full Page",
+		description: "Capture a full page screenshot (entire page, not just viewport) for AI agent analysis",
+		inputSchema: {
+			quality: z.number().optional().describe("Screenshot quality (1-100)"),
+			fullPage: z.boolean().optional().describe("Capture full page (default: true)")
+		}
+	},
+	async ({ quality, fullPage = true }) => {
+		const browser = await ensureBrowserLaunched()
+		
+		// Set screenshot quality if provided
+		if (quality) {
+			process.env.SCREENSHOT_QUALITY = quality.toString()
+		}
+		
+		// Take full page screenshot using the browser session's doActionWithOptions method
+		const result = await browser.doActionWithOptions(async (page) => {
+			// Just wait a moment to ensure page is stable, screenshot is taken automatically
+			await new Promise(resolve => setTimeout(resolve, 100))
+		}, { fullPage })
+		
+		const defaultQuality = parseInt(getConfigValue("SCREENSHOT_QUALITY", "75"))
+		const actualQuality = quality || defaultQuality
+		
+		return {
+			content: [
+				{
+					type: "text",
+					text: `📸 Full page screenshot captured for analysis!\n\n` +
+						`Current URL: ${result.currentUrl}\n` +
+						`Image size: ${Math.round((result.screenshot?.length || 0) / 1024)}KB\n` +
+						`Quality: ${actualQuality}%\n` +
+						`Full page capture: ${fullPage ? "Yes" : "No"}\n` +
 						`Screenshot data available for AI analysis`
 				}
 			]
@@ -241,10 +309,11 @@ server.registerTool(
 		description: "Take and save a screenshot of the current page to disk",
 		inputSchema: {
 			quality: z.number().optional().describe("Screenshot quality (1-100)"),
-			filename: z.string().optional().describe("Custom filename (without extension)")
+			filename: z.string().optional().describe("Custom filename (without extension)"),
+			fullPage: z.boolean().optional().describe("Capture full page (default: false)")
 		}
 	},
-	async ({ quality, filename }) => {
+	async ({ quality, filename, fullPage = false }) => {
 		const browser = await ensureBrowserLaunched()
 		
 		// Set screenshot quality if provided
@@ -252,11 +321,11 @@ server.registerTool(
 			process.env.SCREENSHOT_QUALITY = quality.toString()
 		}
 		
-		// Take screenshot using the browser session's doAction method
-		const result = await browser.doAction(async (page) => {
+		// Take screenshot using the browser session's doActionWithOptions method
+		const result = await browser.doActionWithOptions(async (page) => {
 			// Just wait a moment to ensure page is stable, screenshot is taken automatically
 			await new Promise(resolve => setTimeout(resolve, 100))
-		})
+		}, { fullPage })
 		
 		// Save screenshot to file if available
 		let filePath = ""
@@ -273,13 +342,17 @@ server.registerTool(
 			await fs.writeFile(filePath, Buffer.from(base64Data, 'base64'))
 		}
 		
+		const defaultQuality = parseInt(getConfigValue("SCREENSHOT_QUALITY", "75"))
+		const actualQuality = quality || defaultQuality
+		
 		return {
 			content: [
 				{
 					type: "text",
 					text: `📸 Screenshot saved successfully!\n\n` +
 						`Image size: ${Math.round((result.screenshot?.length || 0) / 1024)}KB\n` +
-						`Quality: ${quality || 75}%\n` +
+						`Quality: ${actualQuality}%\n` +
+						`Full page capture: ${fullPage ? "Yes" : "No"}\n` +
 						`Current URL: ${result.currentUrl}\n` +
 						`${filePath ? `Saved to: ${filePath}` : 'Failed to save screenshot'}`
 				}
