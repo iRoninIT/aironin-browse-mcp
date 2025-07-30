@@ -21,7 +21,8 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.9.0",
-    "aironin-browse-core": "workspace:*"
+    "aironin-browse-core": "workspace:*",
+    "zod": "^3.22.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

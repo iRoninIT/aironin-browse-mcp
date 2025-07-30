@@ -1,13 +1,14 @@
 # aiRonin Browse MCP Server
 
-A Model Context Protocol (MCP) server for browser automation with **headed Chrome support** - perfect for AI agents that communicate via MCP.
+A Model Context Protocol (MCP) server for browser automation with **headed Chrome support** - perfect for AI agents that need to see what they're doing in real-time.
 
 ## 🎯 Why This MCP Server?
 
-- **MCP Compliant**: Works with any MCP client
-- **Headed Mode**: See the browser in action for debugging
+- **AI Agent Optimized**: Screenshot analysis and visual feedback for AI decision-making
+- **Remote Browser Detection**: Automatically finds and uses remote browsers when available
+- **Headed Mode**: Unlike headless automation, you can see the browser in action
 - **Real-time Visibility**: Watch AI agents interact with web pages
-- **Standardized Interface**: Uses MCP protocol for tool communication
+- **Better Debugging**: Screenshots and console logs help debug issues
 - **Smart Tab Management**: Handles multiple tabs and domains intelligently
 
 ## 📋 Prerequisites
@@ -15,7 +16,6 @@ A Model Context Protocol (MCP) server for browser automation with **headed Chrom
 - **Node.js**: 20.0.0 or higher
 - **pnpm**: 10.0.0 or higher (recommended) or npm
 - **Chrome/Chromium**: Will be downloaded automatically
-- **MCP Client**: Any MCP-compatible AI agent
 
 ## 🚀 Quick Start
 
@@ -33,86 +33,58 @@ pnpm install
 pnpm build
 ```
 
-### Basic Usage
+### Configuration
 
-1. **Build the server**:
-
-   ```bash
-   pnpm build
-   ```
-
-2. **Configure in your MCP client**:
-
-   ```json
-   {
-     "mcpServers": {
-       "aironin-browse": {
-         "command": "node",
-         "args": ["/path/to/aironin-browse-mcp/dist/server.js"]
-       }
-     }
-   }
-   ```
-
-3. **Use the tools** in your MCP client:
-   ```json
-   {
-     "name": "test_browser",
-     "arguments": {
-       "url": "https://example.com"
-     }
-   }
-   ```
-
-## 📖 Available Tools
-
-### `test_browser`
-
-Test browser connection and functionality.
-
-**Parameters**:
-
-- `url` (optional): URL to test navigation with (default: "https://example.com")
-
-**Example**:
+Add to your MCP client configuration (e.g., `.cursor/mcp.json`):
 
 ```json
 {
-  "name": "test_browser",
-  "arguments": {
-    "url": "https://google.com"
+  "mcpServers": {
+    "aironin-browse": {
+      "command": "node",
+      "args": ["aironin-browse-mcp/dist/server.js"],
+      "env": {
+        "NODE_ENV": "development"
+      }
+    }
   }
 }
 ```
 
-### `launch_browser`
+## 📖 Available Tools
+
+### Browser Control Tools
+
+#### `launch_browser`
 
 Launch browser and navigate to URL.
 
-**Parameters**:
+**Parameters:**
 
 - `url` (required): URL to navigate to
+- `remote` (optional): Force remote browser connection (default: auto-detect)
 
-**Example**:
+**Example:**
 
 ```json
 {
   "name": "launch_browser",
   "arguments": {
-    "url": "https://example.com"
+    "url": "https://example.com",
+    "remote": false
   }
 }
 ```
 
-### `click_element`
+#### `click_element`
 
 Click at specified coordinates.
 
-**Parameters**:
+**Parameters:**
 
-- `coordinates` (required): Coordinates in format "x,y"
+- `coordinates` (required): Coordinates in format 'x,y'
 
-**Example**:
+**Example:**
 
 ```json
 {
@@ -123,15 +95,15 @@ Click at specified coordinates.
 }
 ```
 
-### `type_text`
+#### `type_text`
 
 Type text into the browser.
 
-**Parameters**:
+**Parameters:**
 
 - `text` (required): Text to type
 
-**Example**:
+**Example:**
 
 ```json
 {
@@ -142,15 +114,15 @@ Type text into the browser.
 }
 ```
 
-### `scroll_page`
+#### `scroll_page`
 
 Scroll the page up or down.
 
-**Parameters**:
+**Parameters:**
 
-- `direction` (required): "up" or "down"
+- `direction` (optional): Scroll direction ("up" or "down", default: "down")
 
-**Example**:
+**Example:**
 
 ```json
 {
@@ -161,15 +133,15 @@ Scroll the page up or down.
 }
 ```
 
-### `hover_element`
+#### `hover_element`
 
 Hover at specified coordinates.
 
-**Parameters**:
+**Parameters:**
 
-- `coordinates` (required): Coordinates in format "x,y"
+- `coordinates` (required): Coordinates in format 'x,y'
 
-**Example**:
+**Example:**
 
 ```json
 {
@@ -180,15 +152,15 @@ Hover at specified coordinates.
 }
 ```
 
-### `resize_browser`
+#### `resize_browser`
 
 Resize browser window.
 
-**Parameters**:
+**Parameters:**
 
-- `size` (required): Size in format "width,height"
+- `size` (required): Size in format 'width,height'
 
-**Example**:
+**Example:**
 
 ```json
 {
@@ -199,13 +171,80 @@ Resize browser window.
 }
 ```
 
-### `close_browser`
+### Screenshot Analysis Tools
+
+#### `take_screenshot`
+
+Take a screenshot for AI agent analysis.
+
+**Parameters:**
+
+- `quality` (optional): Screenshot quality (1-100, default: 75)
+
+**Example:**
+
+```json
+{
+  "name": "take_screenshot",
+  "arguments": {
+    "quality": 85
+  }
+}
+```
+
+**Use Case**: AI agents can use this to "see" what's displayed and make informed decisions about next actions.
+
+#### `save_screenshot`
+
+Take and save a screenshot to disk.
+
+**Parameters:**
+
+- `quality` (optional): Screenshot quality (1-100, default: 75)
+- `filename` (optional): Custom filename (without extension)
+
+**Example:**
+
+```json
+{
+  "name": "save_screenshot",
+  "arguments": {
+    "quality": 90,
+    "filename": "login-page"
+  }
+}
+```
+
+**Output**: Screenshot saved as `login-page-2024-01-15T10-30-45-123Z.webp`
+
+#### `analyze_page`
+
+Analyze the current page content for AI agent understanding.
+
+**Parameters:**
+
+- `includeScreenshot` (optional): Include screenshot data for visual analysis
+
+**Example:**
+
+```json
+{
+  "name": "analyze_page",
+  "arguments": {
+    "includeScreenshot": true
+  }
+}
+```
+
+**Use Case**: Provides page context, metadata, and structural information for AI agents to understand the current state.
+
+#### `close_browser`
 
 Close the browser.
 
-**Parameters**: None
+**Parameters:** None
 
-**Example**:
+**Example:**
 
 ```json
 {
@@ -214,11 +253,57 @@ Close the browser.
 }
 ```
 
+## 🤖 AI Agent Integration
+
+### Screenshot Analysis Workflow
+
+AI agents can analyze browser displays using a comprehensive workflow:
+
+1. **Visual Analysis**: Screenshots provide visual context of what's displayed
+2. **Page Structure**: URL and console logs help understand page state
+3. **Interaction Planning**: Plan clicks, typing, scrolling based on visual data
+4. **Error Detection**: Console logs help identify issues
+5. **State Tracking**: Current URL and mouse position for context
+
+### Typical AI Agent Workflow
+
+```typescript
+// 1. Launch browser and navigate
+await launch_browser({ url: "https://example.com" });
+
+// 2. Take screenshot for analysis
+await take_screenshot({ quality: 85 });
+
+// 3. Analyze page structure
+await analyze_page({ includeScreenshot: true });
+
+// 4. Interact based on analysis
+await click_element({ coordinates: "200,300" });
+await type_text({ text: "Hello World" });
+
+// 5. Save screenshot if needed
+await save_screenshot({ filename: "result" });
+
+// 6. Close browser when done
+await close_browser({});
+```
+
+### Screenshot Data Format
+
+All browser actions return a `BrowserActionResult` with screenshot data:
+
+```typescript
+interface BrowserActionResult {
+  screenshot?: string; // Base64 data URL for AI analysis
+  logs?: string; // Console logs for debugging
+  currentUrl?: string; // Current page URL
+  currentMousePosition?: string; // Last mouse position
+}
+```
+
 ## 🔧 Configuration
 
 ### Environment Variables
-
-You can configure the server using environment variables:
 
 ```bash
 # Browser viewport size
@@ -244,63 +329,61 @@ To connect to an existing Chrome instance:
    chrome --remote-debugging-port=9222
    ```
 
-2. Set environment variables:
+2. The MCP server will automatically detect and connect to remote browsers
 
-   ```bash
-   export REMOTE_BROWSER_ENABLED=true
-   export REMOTE_BROWSER_HOST=http://localhost:9222
-   ```
-
-3. Configure in your MCP client with the environment variables set.
-
-## 🧪 Testing the Server
+## 🧪 Testing
 
 ### Manual Testing
-
-You can test the server manually:
 
 ```bash
 # Build the server
 pnpm build
 
-# Test with a simple MCP client
-echo '{"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}}' | node dist/server.js
+# Test with MCP client
+node dist/server.js
+```
+
+### Browser Testing
+
+For browser testing functionality, use the CLI:
+
+```bash
+# Test browser connection
+aironin-browse test
+
+# Test with custom URL
+aironin-browse test --url https://google.com
 ```
 
 ### Integration Testing
 
-Test with your MCP client:
+```bash
+# Run tests
+pnpm test
 
-1. Configure the server in your MCP client
-2. Use the `test_browser` tool to verify functionality
-3. Try basic operations like `launch_browser` and `click_element`
+# Watch mode
+pnpm test:watch
+```
 
 ## 🔍 Troubleshooting
 
 ### Common Issues
 
-1. **Server not starting**:
-
-   - Check Node.js version (requires 20.0.0+)
-   - Verify all dependencies are installed
-   - Check file permissions
-
-2. **Chrome not launching**:
+1. **Chrome not launching**:
 
    - Ensure sufficient disk space for Chromium download
    - Check internet connection for Chromium download
    - Verify Chrome/Chromium is not already running in debug mode
 
-3. **MCP client connection fails**:
+2. **Remote connection fails**:
 
-   - Verify the server path in MCP client configuration
-   - Check that the server builds successfully
-   - Ensure the server has execute permissions
-
-4. **Remote connection fails**:
    - Verify Chrome is running with `--remote-debugging-port=9222`
    - Check firewall settings
    - Ensure correct host URL
+
+3. **Permission errors**:
+   - Check file permissions for storage directory
+   - Ensure write access to current directory
 
 ### Debug Mode
 
@@ -308,14 +391,6 @@ Enable debug logging:
 
 ```bash
 DEBUG=aironin-browse* node dist/server.js
-```
-
-### Getting Help
-
-Check the server logs for detailed error messages:
-
-```bash
-node dist/server.js 2>&1 | tee server.log
 ```
 
 ## 🛠️ Development
@@ -344,152 +419,83 @@ pnpm lint
 ```
 aironin-browse-mcp/
 ├── src/
-│   ├── server.ts              # Main MCP server entry point
-│   └── browser/
-│       ├── BrowserSession.ts      # Core browser automation
-│       └── browserDiscovery.ts    # Browser discovery utilities
-├── dist/                     # Built files
+│   └── server.ts              # Main MCP server implementation
+├── dist/                      # Built files
 ├── package.json
 └── tsconfig.json
 ```
 
 ### Adding New Tools
 
-1. Add tool handler to `src/server.ts`:
+1. Add tool definition to `src/server.ts`:
 
    ```typescript
-   case "my_tool": {
-     const { param } = args as { param: string }
-     // Tool implementation
-     return {
-       content: [{ type: "text", text: "Result" }],
-       isError: false
-     }
-   }
-   ```
-
-2. Add tool definition to `tools/list` handler:
-
-   ```typescript
-   {
-     name: "my_tool",
-     description: "My new tool",
-     inputSchema: {
-       type: "object",
-       properties: {
-         param: {
-           type: "string",
-           description: "Parameter description"
-         }
+   server.registerTool(
+     "my_tool",
+     {
+       title: "My Tool",
+       description: "Description of my tool",
+       inputSchema: {
+         param1: z.string().describe("Parameter description"),
        },
-       required: ["param"]
-     }
-   }
+     },
+     async ({ param1 }) => ({
+       content: [
+         {
+           type: "text",
+           text: `Tool result: ${param1}`,
+         },
+       ],
+     })
+   );
    ```
 
-3. Rebuild:
+2. Rebuild:
    ```bash
    pnpm build
    ```
 
 ## 📦 API Reference
 
-### Server Configuration
+### BrowserSession Class
 
-The MCP server is configured with:
-
-```typescript
-const server = new Server(
-  {
-    name: "aironin-browse-mcp",
-    version: "1.0.0",
-  },
-  {
-    capabilities: {
-      tools: {},
-    },
-  }
-);
-```
-
-### Tool Response Format
-
-All tools return responses in this format:
+The core browser automation class from `aironin-browse-core`:
 
 ```typescript
-{
-  content: [
-    {
-      type: "text",
-      text: "Tool result message"
-    }
-  ],
-  isError: boolean
-}
+import { BrowserSession } from "aironin-browse-core";
+
+const browser = new BrowserSession();
+
+// Launch browser
+await browser.launchBrowser();
+
+// Navigate to URL
+const result = await browser.navigateToUrl("https://example.com");
+
+// Click at coordinates
+await browser.click("200,300");
+
+// Type text
+await browser.type("Hello World");
+
+// Scroll
+await browser.scrollDown();
+await browser.scrollUp();
+
+// Close browser
+await browser.closeBrowser();
 ```
 
-### Error Handling
+### Return Values
 
-Tools handle errors gracefully:
+All actions return a `BrowserActionResult`:
 
 ```typescript
-try {
-  // Tool implementation
-  return {
-    content: [{ type: "text", text: "Success" }],
-    isError: false,
-  };
-} catch (error) {
-  return {
-    content: [
-      {
-        type: "text",
-        text: `Error: ${
-          error instanceof Error ? error.message : String(error)
-        }`,
-      },
-    ],
-    isError: true,
-  };
-}
-```
-
-## 🤝 MCP Client Integration
-
-### Popular MCP Clients
-
-This server works with any MCP-compatible client:
-
-- **Continue**: AI coding assistant
-- **Cursor**: AI-powered code editor
-- **Claude Desktop**: Anthropic's desktop app
-- **Custom MCP clients**
-
-### Configuration Examples
-
-**Continue**:
-
-```json
-{
-  "mcpServers": {
-    "aironin-browse": {
-      "command": "node",
-      "args": ["/path/to/aironin-browse-mcp/dist/server.js"]
-    }
-  }
-}
-```
-
-**Cursor**:
-
-```json
-{
-  "mcpServers": {
-    "aironin-browse": {
-      "command": "node",
-      "args": ["/path/to/aironin-browse-mcp/dist/server.js"]
-    }
-  }
+interface BrowserActionResult {
+  screenshot?: string; // Base64 encoded screenshot
+  logs?: string; // Console logs
+  currentUrl?: string; // Current page URL
+  currentMousePosition?: string; // Last mouse position
 }
 ```
 
@@ -507,9 +513,9 @@ MIT License - see LICENSE file for details.
 
 ## 🏢 About
 
-**aiRonin Browse MCP Server** is developed by **AI Ronin**.
+**aiRonin Browse MCP Server** is developed by **CK @ iRonin.IT**.
 
-**aiRonin.us** is a software development company specializing in AI-powered tools and automation solutions.
+**iRonin.IT** is a software development company specializing in AI-powered tools and automation solutions.
 
 ## 🆘 Support
 
@@ -517,8 +523,8 @@ For issues and questions:
 
 - Open an issue on the repository
 - Check the troubleshooting section
-- Review the MCP client configuration
+- Review the configuration options
 
 ---
 
-**Ready to integrate browser automation into your MCP workflow!** 🎯
+**Ready to automate browsers with full visibility for AI agents!** 🎯🤖
