@@ -2,24 +2,24 @@
 
 ## Quick Installation
 
-### Option 1: uvx (Recommended)
+### Option 1: npx (Recommended)
 
 ```bash
 # Install the MCP server
-uvx --from git+https://github.com/iRoninIT/aironin-browse-mcp aironin-browse-mcp
+npm install -g aironin-browse-mcp
 
 # Add to your MCP configuration
 echo '{
   "mcpServers": {
     "aironin-browse": {
-      "command": "uvx",
-      "args": ["--from", "git+https://github.com/iRoninIT/aironin-browse-mcp", "aironin-browse-mcp"]
+      "command": "npx",
+      "args": ["aironin-browse-mcp"]
     }
   }
 }' > .cursor/mcp.json
 ```
 
-### Option 2: npx (Alternative)
+### Option 2: Direct Git (Alternative)
 
 ```bash
 # Install globally

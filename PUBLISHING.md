@@ -6,12 +6,12 @@ This guide covers publishing the aiRonin Browse MCP server for easy installation
 
 ## Publishing Options
 
-### **Recommended: `uvx` (GitHub-based)**
+### **Recommended: `npx` (npm-based)**
 
-- ✅ **Easier**: Direct from GitHub repository
-- ✅ **No npm account**: Can publish immediately
-- ✅ **MCP Standard**: Most MCP servers use this approach
-- ✅ **Version Control**: Uses git tags for versioning
+- ✅ **Wide Distribution**: Available on npm registry
+- ✅ **Node.js Standard**: Native support for Node.js packages
+- ✅ **Version Management**: npm versioning system
+- ✅ **Easy Installation**: One command installation
 
 ### **Alternative: `npx` (npm-based)**
 
