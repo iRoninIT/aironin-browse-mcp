@@ -31,10 +31,29 @@ echo "📦 Installing dependencies..."
 # Check for package manager preference
 if command -v npm &> /dev/null; then
     echo "📦 Installing with npm (default)..."
-    npm install -g aironin-browse-mcp@latest
+    
+    # Install dependencies without Puppeteer first
+    npm install --ignore-scripts --no-optional
+    
+    # Install Puppeteer separately with flags to avoid Chromium download issues
+    echo "📦 Installing Puppeteer (this may take a while)..."
+    npm install puppeteer --ignore-scripts --no-optional || {
+        echo "⚠️  Puppeteer installation failed, but continuing..."
+        echo "The MCP server will work with remote browsers or when Chrome is available"
+    }
+    
 elif command -v pnpm &> /dev/null; then
     echo "📦 Installing with pnpm (alternative)..."
-    pnpm add -g aironin-browse-mcp@latest
+    
+    # Install dependencies without Puppeteer first
+    pnpm install --ignore-scripts --no-optional
+    
+    # Install Puppeteer separately
+    echo "📦 Installing Puppeteer (this may take a while)..."
+    pnpm add puppeteer --ignore-scripts --no-optional || {
+        echo "⚠️  Puppeteer installation failed, but continuing..."
+        echo "The MCP server will work with remote browsers or when Chrome is available"
+    }
 else
     echo "❌ Neither npm nor pnpm found. Please install Node.js (includes npm) or pnpm."
     exit 1

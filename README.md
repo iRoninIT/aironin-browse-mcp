@@ -18,20 +18,20 @@ npm start
 
 ```bash
 # Use npx (works everywhere)
-npx --yes aironin-browse-mcp@1.2.2
+npx --yes aironin-browse-mcp@1.2.10
 ```
 
 ### For Dev Containers:
 
 ```bash
 # Install the package globally
-npm install -g aironin-browse-mcp@1.2.7
+npm install -g aironin-browse-mcp@1.2.10
 
 # Or use npx (recommended)
-npx --yes aironin-browse-mcp@1.2.7
+npx --yes aironin-browse-mcp@1.2.10
 ```
 
-**Note**: The puppeteer-chromium-resolver installation issue has been fixed in version 1.2.7+.
+**Note**: The installation process has been improved to handle Puppeteer installation issues in dev containers. The server will work with remote browsers even if local Chromium installation fails.
 
 ## 📋 MCP Configuration
 
@@ -83,17 +83,26 @@ The server automatically detects and uses:
 
 1. Restart your MCP client (Cursor/Continue)
 2. Check that Node.js version is 20.0.0 or higher
-3. Verify the server is running: `npx --yes aironin-browse-mcp@1.2.2`
+3. Verify the server is running: `npx --yes aironin-browse-mcp@1.2.10`
 
 ### Dev Container Issues
 
-1. Use the latest version: `npx --yes aironin-browse-mcp@1.2.7`
+1. Use the latest version: `npx --yes aironin-browse-mcp@1.2.10`
 2. The server will automatically use your host Chrome
+3. If Puppeteer installation fails, the server will still work with remote browsers
 
 ### Permission Issues
 
 - Use `npx --yes` to avoid prompts
-- For global install: `sudo npm install -g aironin-browse-mcp@1.2.7`
+- For global install: `sudo npm install -g aironin-browse-mcp@1.2.10`
+
+### Puppeteer Installation Issues
+
+If you see Puppeteer installation errors in dev containers:
+
+1. The server will still work with remote browsers
+2. Start Chrome with: `chrome --remote-debugging-port=9222`
+3. The server will auto-detect and connect to remote Chrome
 
 ## 📦 Installation
 

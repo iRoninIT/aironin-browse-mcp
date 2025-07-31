@@ -1,8 +1,19 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
-import { BrowserSession, type BrowserActionResult } from "aironin-browse-core"
-import { discoverChromeHostUrl } from "aironin-browse-core"
 import { z } from "zod"
+
+// Try to import browser dependencies, but don't fail if they're not available
+let BrowserSession: any = null
+let discoverChromeHostUrl: any = null
+
+try {
+	const browserModule = await import("aironin-browse-core")
+	BrowserSession = browserModule.BrowserSession
+	discoverChromeHostUrl = browserModule.discoverChromeHostUrl
+} catch (error) {
+	// Browser dependencies not available, but we can still provide the MCP server
+	console.error("Browser dependencies not available. Install with: npm install aironin-browse-core@^1.1.1")
+}
 
 // Create the server
 const server = new McpServer({
@@ -11,7 +22,7 @@ const server = new McpServer({
 })
 
 // Browser session instance
-let browserSession: BrowserSession | null = null
+let browserSession: any = null
 
 // Configuration helper function
 function getConfigValue(key: string, defaultValue: string): string {
@@ -19,7 +30,11 @@ function getConfigValue(key: string, defaultValue: string): string {
 }
 
 // Helper function to ensure browser is launched with remote detection
-async function ensureBrowserLaunched(forceRemote: boolean = false): Promise<BrowserSession> {
+async function ensureBrowserLaunched(forceRemote: boolean = false): Promise<any> {
+	if (!BrowserSession) {
+		throw new Error("Browser dependencies not available. Please install: npm install aironin-browse-core@^1.1.1")
+	}
+	
 	if (!browserSession) {
 		browserSession = new BrowserSession()
 		
@@ -37,19 +52,15 @@ async function ensureBrowserLaunched(forceRemote: boolean = false): Promise<Brow
 		// Try remote browser detection first (unless explicitly disabled)
 		const remoteBrowserEnabled = getConfigValue("REMOTE_BROWSER_ENABLED", "true")
 		if (forceRemote || remoteBrowserEnabled !== "false") {
-			console.error("🔍 Attempting remote browser detection...")
 			const remoteHostUrl = await discoverChromeHostUrl(9222)
 			
 			if (remoteHostUrl) {
-				console.error(`✅ Found remote browser at: ${remoteHostUrl}`)
 				process.env.REMOTE_BROWSER_ENABLED = "true"
 				process.env.REMOTE_BROWSER_HOST = remoteHostUrl
 			} else {
-				console.error("❌ No remote browser found, using local browser")
 				process.env.REMOTE_BROWSER_ENABLED = "false"
 			}
 		} else {
-			console.error("🔧 Remote browser detection disabled by configuration")
 			process.env.REMOTE_BROWSER_ENABLED = "false"
 		}
 		
@@ -235,7 +246,7 @@ server.registerTool(
 		}
 		
 		// Take screenshot using the browser session's doActionWithOptions method
-		const result = await browser.doActionWithOptions(async (page) => {
+		const result = await browser.doActionWithOptions(async (page: any) => {
 			// Just wait a moment to ensure page is stable, screenshot is taken automatically
 			await new Promise(resolve => setTimeout(resolve, 100))
 		}, { fullPage })
@@ -278,7 +289,7 @@ server.registerTool(
 		}
 		
 		// Take full page screenshot using the browser session's doActionWithOptions method
-		const result = await browser.doActionWithOptions(async (page) => {
+		const result = await browser.doActionWithOptions(async (page: any) => {
 			// Just wait a moment to ensure page is stable, screenshot is taken automatically
 			await new Promise(resolve => setTimeout(resolve, 100))
 		}, { fullPage })
@@ -322,7 +333,7 @@ server.registerTool(
 		}
 		
 		// Take screenshot using the browser session's doActionWithOptions method
-		const result = await browser.doActionWithOptions(async (page) => {
+		const result = await browser.doActionWithOptions(async (page: any) => {
 			// Just wait a moment to ensure page is stable, screenshot is taken automatically
 			await new Promise(resolve => setTimeout(resolve, 100))
 		}, { fullPage })
@@ -374,7 +385,7 @@ server.registerTool(
 		const browser = await ensureBrowserLaunched()
 		
 		// Take screenshot and get page info
-		const result = await browser.doAction(async (page) => {
+		const result = await browser.doAction(async (page: any) => {
 			// Just wait a moment to ensure page is stable, screenshot is taken automatically
 			await new Promise(resolve => setTimeout(resolve, 100))
 		})
@@ -433,18 +444,6 @@ server.registerTool(
 async function main() {
 	const transport = new StdioServerTransport()
 	await server.connect(transport)
-	
-	console.error("🚀 aiRonin Browse MCP Server started")
-	console.error("📋 Available tools:")
-	console.error("  - test_browser: Test browser connection and functionality")
-	console.error("  - launch_browser: Launch browser and navigate to URL")
-	console.error("  - click_element: Click at specified coordinates")
-	console.error("  - type_text: Type text into the browser")
-	console.error("  - scroll_page: Scroll the page up or down")
-	console.error("  - hover_element: Hover at specified coordinates")
-	console.error("  - resize_browser: Resize browser window")
-	console.error("  - close_browser: Close the browser")
-	console.error("🔧 Remote browser detection: Enabled by default, auto-detects remote browsers")
 }
 
 main().catch(console.error) 

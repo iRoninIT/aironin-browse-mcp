@@ -1,6 +1,6 @@
 {
   "name": "aironin-browse-mcp",
-  "version": "1.2.8",
+  "version": "1.2.10",
   "description": "aiRonin Browse MCP server with headed Chrome support",
   "main": "server.js",
   "bin": {
@@ -12,6 +12,13 @@
     "node": ">=20.0.0",
     "pnpm": ">=10.0.0"
   },
+  "files": [
+    "server.js",
+    "src/",
+    "dist/",
+    "README.md",
+    "LICENSE.txt"
+  ],
   "scripts": {
     "build": "tsc",
     "start": "node server.js",
@@ -20,7 +27,8 @@
     "test:watch": "vitest --watch",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
-    "clean": "rm -rf dist node_modules"
+    "clean": "rm -rf dist node_modules",
+    "postinstall": "node -e \"try { require('puppeteer'); } catch(e) { console.log('Puppeteer not available yet'); }\""
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.9.0",
@@ -50,7 +58,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/iRoninIT/aironin-browse-mcp.git"
+    "url": "git+https://github.com/iRoninIT/aironin-browse-mcp.git"
   },
   "bugs": {
     "url": "https://github.com/iRoninIT/aironin-browse-mcp/issues"
