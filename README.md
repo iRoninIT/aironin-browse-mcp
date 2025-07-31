@@ -14,30 +14,48 @@ A Model Context Protocol (MCP) server for browser automation with **headed Chrom
 ## 📋 Prerequisites
 
 - **Node.js**: 20.0.0 or higher
-- **pnpm**: 10.0.0 or higher (recommended) or npm
+- **Package Manager**:
+  - **npm**: 9.0.0 or higher (default)
+  - **pnpm**: 10.0.0 or higher (alternative)
 - **Chrome/Chromium**: Will be downloaded automatically
 
 ## 🚀 Quick Start
 
 ### Installation
 
-```bash
-# Clone the repository
-git clone https://github.com/iRoninIT/aironin-browse-mcp.git
-cd aironin-browse-mcp
+The MCP server is available as an npm package and will be automatically downloaded when you use it. No manual installation is required.
 
-# Install dependencies
-pnpm install
+**For MCP Clients (Cursor, Continue, etc.):**
 
-# Build the server
-pnpm build
-```
+Simply add the configuration to your MCP client and the package will be downloaded automatically on first use.
 
 ### Configuration
 
 #### Production Configuration (Published Package)
 
 For production use with the published npm package:
+
+**Using npm (default):**
+
+```json
+{
+  "mcpServers": {
+    "aironin-browse": {
+      "command": "npx",
+      "args": ["--yes", "aironin-browse-mcp"],
+      "env": {
+        "NODE_ENV": "production",
+        "REMOTE_BROWSER_ENABLED": "true",
+        "SCREENSHOT_QUALITY": "75",
+        "BROWSER_VIEWPORT_SIZE": "900x600",
+        "BROWSER_NAVIGATION_TIMEOUT": "15000"
+      }
+    }
+  }
+}
+```
+
+**Using pnpm (alternative):**
 
 ```json
 {
@@ -79,9 +97,30 @@ For development with local changes:
 }
 ```
 
-#### Alternative Development Configuration (with pnpm)
+#### Alternative Development Configuration
 
-If you prefer using pnpm for development:
+**Using npm for development (default):**
+
+```json
+{
+  "mcpServers": {
+    "aironin-browse": {
+      "command": "npm",
+      "args": ["run", "start"],
+      "cwd": "aironin-browse-mcp",
+      "env": {
+        "NODE_ENV": "development",
+        "REMOTE_BROWSER_ENABLED": "true",
+        "SCREENSHOT_QUALITY": "75",
+        "BROWSER_VIEWPORT_SIZE": "900x600",
+        "BROWSER_NAVIGATION_TIMEOUT": "15000"
+      }
+    }
+  }
+}
+```
+
+**Using pnpm for development (alternative):**
 
 ```json
 {
@@ -165,11 +204,25 @@ All parameters can be set via the `env` section in your MCP configuration:
 2. **Development vs Production**:
 
    - Development: Uses local build at `aironin-browse-mcp/dist/server.js`
-   - Production: Downloads from npm registry
+   - Production: Downloads from npm registry using `npx --yes` (npm) or `pnpm dlx` (pnpm)
 
 3. **Restart Required**:
+
    - After changing configuration, restart your MCP client (Cursor, Continue, etc.)
    - New tools may require a restart to become available
+
+4. **Package Manager Issues**:
+
+   - Ensure you're using the correct command for your package manager (`npx --yes` for npm, `pnpm dlx` for pnpm)
+   - Verify the package manager is available in your PATH
+   - For npm: Use `--yes` flag to avoid prompts in automated environments
+
+5. **"No tools available" or "No prompts"**:
+   - Restart your MCP client (Cursor, Continue, etc.) after adding configuration
+   - Check that the MCP server is starting correctly in the logs
+   - Verify the configuration syntax is correct (no extra commas, proper JSON)
+   - Try the development configuration if production doesn't work
+   - Check that Node.js 20.0.0+ is installed and available
 
 ## 📖 Available Tools
 
@@ -471,11 +524,26 @@ To connect to an existing Chrome instance:
 
 ## 🧪 Testing
 
-### Manual Testing
+### Quick Test
+
+To verify the MCP server works correctly:
 
 ```bash
-# Build the server
-pnpm build
+# Test with npm (default)
+npx --yes aironin-browse-mcp
+
+# Test with pnpm (alternative)
+pnpm dlx aironin-browse-mcp
+```
+
+The server should start and show available tools. Press Ctrl+C to exit.
+
+### Manual Testing (Development)
+
+```bash
+# Build the server (choose one)
+npm run build   # Using npm (default)
+pnpm build      # Using pnpm (alternative)
 
 # Test with MCP client
 node dist/server.js
@@ -496,11 +564,13 @@ aironin-browse test --url https://google.com
 ### Integration Testing
 
 ```bash
-# Run tests
-pnpm test
+# Run tests (choose one)
+pnpm test       # Using pnpm
+npm test        # Using npm
 
-# Watch mode
-pnpm test:watch
+# Watch mode (choose one)
+pnpm test:watch # Using pnpm
+npm run test:watch # Using npm
 ```
 
 ## 🔍 Troubleshooting
@@ -536,20 +606,25 @@ DEBUG=aironin-browse* node dist/server.js
 ### Building from Source
 
 ```bash
-# Install dependencies
-pnpm install
+# Install dependencies (choose one)
+pnpm install    # Using pnpm (recommended)
+npm install     # Using npm
 
-# Build the project
-pnpm build
+# Build the project (choose one)
+pnpm build      # Using pnpm
+npm run build   # Using npm
 
-# Run in development mode
-pnpm dev
+# Run in development mode (choose one)
+pnpm dev        # Using pnpm
+npm run dev     # Using npm
 
-# Run tests
-pnpm test
+# Run tests (choose one)
+pnpm test       # Using pnpm
+npm test        # Using npm
 
-# Lint code
-pnpm lint
+# Lint code (choose one)
+pnpm lint       # Using pnpm
+npm run lint    # Using npm
 ```
 
 ### Project Structure

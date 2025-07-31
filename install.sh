@@ -28,18 +28,39 @@ mkdir -p "$INSTALL_DIR"
 
 echo "📦 Installing dependencies..."
 
-# Install the MCP package globally
-npm install -g aironin-browse-mcp@latest
+# Check for package manager preference
+if command -v npm &> /dev/null; then
+    echo "📦 Installing with npm (default)..."
+    npm install -g aironin-browse-mcp@latest
+elif command -v pnpm &> /dev/null; then
+    echo "📦 Installing with pnpm (alternative)..."
+    pnpm add -g aironin-browse-mcp@latest
+else
+    echo "❌ Neither npm nor pnpm found. Please install Node.js (includes npm) or pnpm."
+    exit 1
+fi
 
 echo "✅ Installation complete!"
 echo ""
 echo "📋 Next steps:"
 echo "1. Add the following to your MCP configuration (.cursor/mcp.json or ~/.continue/config.json):"
 echo ""
+echo "Using npm (default):"
 echo '{'
 echo '  "mcpServers": {'
 echo '    "aironin-browse": {'
-echo '      "command": "aironin-browse-mcp"'
+echo '      "command": "npx",'
+echo '      "args": ["--yes", "aironin-browse-mcp"]'
+echo '    }'
+echo '  }'
+echo '}'
+echo ""
+echo "Using pnpm (alternative):"
+echo '{'
+echo '  "mcpServers": {'
+echo '    "aironin-browse": {'
+echo '      "command": "pnpm",'
+echo '      "args": ["dlx", "aironin-browse-mcp"]'
 echo '    }'
 echo '  }'
 echo '}'
