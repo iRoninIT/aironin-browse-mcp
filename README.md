@@ -89,7 +89,6 @@ The server automatically detects and uses:
 
 1. Use the latest version: `npx --yes aironin-browse-mcp@1.2.7`
 2. The server will automatically use your host Chrome
-3. See [DEV_CONTAINER_INSTALLATION.md](./DEV_CONTAINER_INSTALLATION.md) for detailed setup
 
 ### Permission Issues
 
