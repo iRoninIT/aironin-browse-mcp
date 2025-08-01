@@ -12,7 +12,7 @@ try {
 	discoverChromeHostUrl = browserModule.discoverChromeHostUrl
 } catch (error) {
 	// Browser dependencies not available, but we can still provide the MCP server
-	console.error("Browser dependencies not available. Install with: npm install aironin-browse-core@^1.1.1")
+	console.error("Browser dependencies not available. Install with: npm install aironin-browse-core@^1.1.2")
 }
 
 // Create the server
@@ -32,7 +32,7 @@ function getConfigValue(key: string, defaultValue: string): string {
 // Helper function to ensure browser is launched with remote detection
 async function ensureBrowserLaunched(forceRemote: boolean = false): Promise<any> {
 	if (!BrowserSession) {
-		throw new Error("Browser dependencies not available. Please install: npm install aironin-browse-core@^1.1.1")
+		throw new Error("Browser dependencies not available. Please install: npm install aironin-browse-core@^1.1.2")
 	}
 	
 	if (!browserSession) {
